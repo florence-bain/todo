@@ -1,5 +1,6 @@
 import { TodoItem } from "./todoitem";
 import { TodoCollection } from "./todoCollection";
+import * as inquirer from 'inquirer';
 
 let todos: TodoItem[] = [
   new TodoItem(1, "Water plants"),
@@ -10,11 +11,30 @@ let todos: TodoItem[] = [
 
 let collection: TodoCollection = new TodoCollection("Florence", todos);
 
-console.clear();
-console.log(
-  `${collection.userName}'s Todo List` +
-    `(${collection.getItemCounts().incomplete} items to do)`
-);
+function displayTodoList(): void {
+console.log(`${collection.userName}'s Todo List` 
++ `(${collection.getItemCounts().incomplete} items to do)`);
+collection.getTodoItems(true).forEach(item => item.printDetails());
+}
+enum Commands {
+  Quit = "Quit"
+}
 
-collection.removeComplete();
-collection.getTodoItems(true).forEach((item) => item.printDetails());
+function promptUser(): void {
+  console.clear();
+  displayTodoList();
+  inquirer.prompt({
+    type: 'list',
+    name: 'command',
+    message: 'Choose option',
+    choices: Object.values(Commands)
+  }).then(answers => {
+    if (answers['command'] !== Commands.Quit ) {
+      promptUser();
+    }
+  })
+}
+
+promptUser();
+
+
